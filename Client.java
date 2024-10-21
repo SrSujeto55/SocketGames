@@ -26,18 +26,36 @@ public class Client {
         }
     }
 
-    public void communicate(){
-        try(Scanner scanner = new Scanner(System.in)){
-            String response;
-            while(true){
-                System.out.print(">>>");
-                String message = scanner.nextLine();
-                out.println(message);
-                response = in.readLine();
-                System.out.println("S>>> " + response);
-            }
+    public void hangmanMessages(){
+        try{
+            out.println("HANGMAN_MODE");
+            String response = in.readLine();
+            System.out.println(response);
         }catch(IOException e){
-            System.out.println("Can't communicate with server");
+            System.out.println("Can't start Hangman mode");
+        }
+    }
+
+    public void communicate(){
+        ///TODO cambiar el nombre entre corchetes para que vaya acorde al nombre del juego
+        new Thread(() -> {
+            String response;
+            try {
+                while ((response = in.readLine()) != null) {
+                    System.out.println("[SERVER] >>> " + response);
+                }
+            } catch (IOException e) {
+                System.out.println("Error leyendo del servidor");
+            }
+        }).start();
+
+        Scanner scanner = new Scanner(System.in);
+        while(true){
+            String message = scanner.nextLine();
+            if(message.equals("EXIT")){
+                break;
+            }
+            out.println(message);
         }
     }
 
@@ -52,13 +70,22 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        try(Scanner scanner = new Scanner(System.in)){
-
-            Client client = new Client(8080);
-            client.echoMessages();
-            client.communicate();
-        }catch(IOException e){
-            System.out.println("Can't connect to server");
+        if (args.length < 1){
+            System.out.println("Usage: java Client [PORT]");
+            System.exit(1);
+        }
+        
+        try{
+            int port = Integer.parseInt(args[0]);
+            try(Scanner scanner = new Scanner(System.in)){
+                Client client = new Client(port);
+                client.communicate();
+            }catch(IOException e){
+                System.out.println("Can't connect to server");
+            }
+        }catch(NumberFormatException e){
+            System.out.println("Invalid port");
+            System.exit(1);
         }
     }
 }

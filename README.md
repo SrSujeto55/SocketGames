@@ -8,7 +8,7 @@
 # Ejecutar 
 
     //[Servidor]
-    java -cp bin Server
+    java -cp bin Server [PORT]
     
     //[Cliente]
-    java -cp bin Client
+    java -cp bin Client [PORT]
