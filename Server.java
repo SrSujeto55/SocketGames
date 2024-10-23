@@ -100,7 +100,7 @@ class ServerHandler extends Thread{
                 System.out.println("FourInRow mode activated by >> " + client.getInetAddress().getHostAddress());
                 fourInRowMode = true;
                 fourInRow = new FourInRow();
-                out.println("Modo en mantenimiento, disculpa las molestias");
+                msgProtocol("4INROW", fourInRow.welcomeMessage());
                 break;
             case "EXIT":
                 out.println("Closing connection...");
@@ -115,7 +115,7 @@ class ServerHandler extends Thread{
         try{
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             out = new PrintWriter(client.getOutputStream(), true);
-            msgProtocol("SERVER", "Bienvenido al servidor -> usa estos [COMANDOS]: \nTOGGLE_ECHO \nHANGMAN_MODE \nTICTAC_MODE \nROCKPAPER_MODE \nFOURINROW_MODE \nEXIT");
+            msgProtocol("SERVER", "Welcome to 'THE SERVER' -> write this [COMMANDS]: \nTOGGLE_ECHO \nHANGMAN_MODE \nTICTAC_MODE \nROCKPAPER_MODE \nFOURINROW_MODE \nEXIT");
             String message;
             while ((message = in.readLine()) != null) {
                 System.out.println("recv message from " + client.getInetAddress().getHostAddress() + ": " + message);
@@ -132,6 +132,7 @@ class ServerHandler extends Thread{
                     continue;
                 }
 
+                //* Just Echo
                 if(echoMode){
                     msgProtocol("ECHO", message);
                     continue;
@@ -149,6 +150,7 @@ class ServerHandler extends Thread{
                     msgProtocol("ROCK_PAPER", RockPaper.play(message));
                 }
 
+                //* TIC TAC TOE
                 else if (tictackMode){
                     msgProtocol("TICTAC", tictack.playerMove(message));
                     String Winner = tictack.checkWinner();
@@ -162,12 +164,6 @@ class ServerHandler extends Thread{
 
                 //* HANGMAN
                 else if (hangmanMode){
-                    if(hangman.endGame()){
-                        msgProtocol("HANGMAN", "You lost!");
-                        msgProtocol("SERVER", "GAME ENDED");
-                        hangmanMode = false;
-                        continue;
-                    }
                     if (message.length() == 1){
                         msgProtocol("HANGMAN", hangman.guessChar(message.charAt(0)));
                     }else{
@@ -178,6 +174,25 @@ class ServerHandler extends Thread{
                         }else{
                             msgProtocol("HANGMAN", "Wrong Word!");
                         }
+                    }
+                    if(hangman.endGame()){
+                        msgProtocol("HANGMAN", "You lost!");
+                        msgProtocol("SERVER", "GAME ENDED");
+                        hangmanMode = false;
+                        continue;
+                    }
+                }
+                else if (fourInRowMode){
+                    if (message.equals("exit")){
+                        fourInRowMode = false;
+                        msgProtocol("SERVER", "Fun ruined by user :/");
+                        continue;
+                    }
+                    else if(message.equals("80")){
+                        msgProtocol("4INROW", "*Imagine yourself having the most fun moment of your life*");
+                    } 
+                    else{
+                        msgProtocol("4INROW", "No '80', no fun, RULES!");
                     }
                 }
             }
