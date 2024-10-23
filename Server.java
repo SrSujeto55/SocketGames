@@ -60,6 +60,17 @@ class ServerHandler extends Thread{
         }
     }
 
+    private void msgProtocol(String hostname, String msg){
+        String[] parts = msg.split("\n");
+        if(parts.length > 1){
+            for (String part : parts) {
+                out.println(hostname + ";;" + part);
+            }
+            return;
+        }
+        out.println(hostname + ";;" + msg);
+    }
+
     private void searchMode(String msg){
         switch (msg) {
             case "ECHO_MODE":
@@ -70,7 +81,7 @@ class ServerHandler extends Thread{
                 System.out.println("Hangman mode activated by >> " + client.getInetAddress().getHostAddress());
                 hangmanMode = true;
                 hangman = new Hangman();
-                out.println(hangman.welcomeMessage());
+                msgProtocol("HANGMAN", hangman.welcomeMessage());
                 break;
             case "TICTACTOE_MODE":
                 System.out.println("TicTacToe mode activated by >> " + client.getInetAddress().getHostAddress());
@@ -78,11 +89,11 @@ class ServerHandler extends Thread{
                 tictack = new TicTacToe();
                 out.println("Modo en mantenimiento, disculpa las molestias");
                 break;
-            case "ROCKPAPERSCISSORS_MODE":
+            case "ROCKPAPER_MODE":
                 System.out.println("RockPaperScissors mode activated by >> " + client.getInetAddress().getHostAddress());
                 RockPaperMode = true;
                 RockPaper = new RockPaperScissors();
-                out.println("Modo en mantenimiento, disculpa las molestias");
+                msgProtocol("ROCK_PAPER", RockPaper.welcomeMessage());
                 break;
             case "FOURINROW_MODE":
                 System.out.println("FourInRow mode activated by >> " + client.getInetAddress().getHostAddress());
@@ -103,10 +114,9 @@ class ServerHandler extends Thread{
         try{
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             out = new PrintWriter(client.getOutputStream(), true);
-            out.println("Bienvenido al servidor -> usa estos [COMANDOS]: \n TOGGLE_ECHO \n HANGMAN_MODE \n TICTACTOE_MODE \n ROCKPAPERSCISSORS_MODE \n FOURINROW_MODE \n EXIT");
+            msgProtocol("SERVER", "Bienvenido al servidor -> usa estos [COMANDOS]: \nTOGGLE_ECHO \nHANGMAN_MODE \nTICTACTOE_MODE \nROCKPAPER_MODE \nFOURINROW_MODE \nEXIT");
             String message;
             while ((message = in.readLine()) != null) {
-                System.out.println(echoMode);
                 System.out.println("recv message from " + client.getInetAddress().getHostAddress() + ": " + message);
 
                 if (message.equals("TOGGLE_ECHO")){
@@ -125,20 +135,32 @@ class ServerHandler extends Thread{
                     out.println("[ECHO] " + message);
                     continue;
                 }
-                if (hangmanMode){
+
+                else if (RockPaperMode){
+                    if (message.equals("exit")){
+                        RockPaperMode = false;
+                        msgProtocol("SERVER", "RockPaperScissors mode deactivated");
+                        continue;
+                    }
+                    msgProtocol("ROCK_PAPER", RockPaper.play(message));
+                }
+
+                else if (hangmanMode){
                     if(hangman.endGame()){
-                        out.println("You lost!");
+                        msgProtocol("HANGMAN", "You lost!");
+                        msgProtocol("SERVER", "GAME ENDED");
                         hangmanMode = false;
                         continue;
                     }
                     if (message.length() == 1){
-                        out.println(hangman.guessChar(message.charAt(0)));
+                        msgProtocol("HANGMAN", hangman.guessChar(message.charAt(0)));
                     }else{
                         if(hangman.guessWord(message)){
-                            out.println("You won!");
+                            msgProtocol("HANGMAN", "You Won!");
+                            msgProtocol("SERVER", "GAME ENDED");
                             hangmanMode = false;
                         }else{
-                            out.println("Wrong word!");
+                            msgProtocol("HANGMAN", "Wrong Word!");
                         }
                     }
                 }

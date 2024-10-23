@@ -37,12 +37,16 @@ public class Client {
     }
 
     public void communicate(){
-        ///TODO cambiar el nombre entre corchetes para que vaya acorde al nombre del juego
         new Thread(() -> {
             String response;
             try {
                 while ((response = in.readLine()) != null) {
-                    System.out.println("[SERVER] >>> " + response);
+                    String[] parts = response.split(";;");
+                    if(parts.length != 2){
+                        System.out.println("protocol response error, expected 2 parts, got " + parts.length);
+                        continue;
+                    }
+                    System.out.println("[" + parts[0] + "] >>> " + parts[1]);
                 }
             } catch (IOException e) {
                 System.out.println("Error leyendo del servidor");
