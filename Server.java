@@ -83,11 +83,12 @@ class ServerHandler extends Thread{
                 hangman = new Hangman();
                 msgProtocol("HANGMAN", hangman.welcomeMessage());
                 break;
-            case "TICTACTOE_MODE":
+            case "TICTAC_MODE":
                 System.out.println("TicTacToe mode activated by >> " + client.getInetAddress().getHostAddress());
                 tictackMode = true;
                 tictack = new TicTacToe();
-                out.println("Modo en mantenimiento, disculpa las molestias");
+                msgProtocol("TICTAC", tictack.welcomeMessage());
+                msgProtocol("TICTAC", tictack.printTableIndex());
                 break;
             case "ROCKPAPER_MODE":
                 System.out.println("RockPaperScissors mode activated by >> " + client.getInetAddress().getHostAddress());
@@ -114,7 +115,7 @@ class ServerHandler extends Thread{
         try{
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
             out = new PrintWriter(client.getOutputStream(), true);
-            msgProtocol("SERVER", "Bienvenido al servidor -> usa estos [COMANDOS]: \nTOGGLE_ECHO \nHANGMAN_MODE \nTICTACTOE_MODE \nROCKPAPER_MODE \nFOURINROW_MODE \nEXIT");
+            msgProtocol("SERVER", "Bienvenido al servidor -> usa estos [COMANDOS]: \nTOGGLE_ECHO \nHANGMAN_MODE \nTICTAC_MODE \nROCKPAPER_MODE \nFOURINROW_MODE \nEXIT");
             String message;
             while ((message = in.readLine()) != null) {
                 System.out.println("recv message from " + client.getInetAddress().getHostAddress() + ": " + message);
@@ -132,10 +133,13 @@ class ServerHandler extends Thread{
                 }
 
                 if(echoMode){
-                    out.println("[ECHO] " + message);
+                    msgProtocol("ECHO", message);
                     continue;
                 }
 
+                //? Game Modes
+
+                //* ROCK PAPER SCISSORS
                 else if (RockPaperMode){
                     if (message.equals("exit")){
                         RockPaperMode = false;
@@ -145,6 +149,18 @@ class ServerHandler extends Thread{
                     msgProtocol("ROCK_PAPER", RockPaper.play(message));
                 }
 
+                else if (tictackMode){
+                    msgProtocol("TICTAC", tictack.playerMove(message));
+                    String Winner = tictack.checkWinner();
+                    if(!Winner.equals("NONE")){
+                        msgProtocol("TICTAC", Winner);
+                        msgProtocol("SERVER", "GAME ENDED");
+                        tictackMode = false;
+                        continue;
+                    }
+                }
+
+                //* HANGMAN
                 else if (hangmanMode){
                     if(hangman.endGame()){
                         msgProtocol("HANGMAN", "You lost!");
