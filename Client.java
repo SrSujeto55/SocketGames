@@ -57,6 +57,7 @@ public class Client {
         while(true){
             String message = scanner.nextLine();
             if(message.equals("EXIT")){
+                scanner.close();
                 break;
             }
             out.println(message);
