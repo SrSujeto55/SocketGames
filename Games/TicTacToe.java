@@ -8,6 +8,7 @@ public class TicTacToe {
     private Random rand;
     private List<Integer> availableMoves;
 
+    // Contructor of the game, initializes the board with '+' and the random variable and the available moves
     public TicTacToe(){
         board = new char[3][3];
         rand = new Random();
@@ -22,10 +23,12 @@ public class TicTacToe {
         }
     }
 
+    // Returns the welcome message of the game, with the rules to play
     public String welcomeMessage(){
         return "Welcome to Tic Tac Toe!, select your number";
     }
 
+    // Checks the winner of the game, by checking the rows, columns and diagonals of the board
     public String checkWinner(){
         for(int i = 0; i < 3; i++){
             if(board[i][0] == board[i][1] && board[i][1] == board[i][2]){
@@ -68,6 +71,7 @@ public class TicTacToe {
         return "It's a tie!";
     }
     
+    // Prints the table index for the player to make a move
     public String printTableIndex(){
         return " 1 | 2 | 3 \n"
              + "---|---|---\n"
@@ -76,6 +80,7 @@ public class TicTacToe {
              + " 7 | 8 | 9 \n";
     } 
 
+    // Prints the current state of the game board
     public String printBoard(){
         StringBuilder sb = new StringBuilder();
         for(int i = 0; i < 3; i++){
@@ -93,6 +98,7 @@ public class TicTacToe {
         return sb.toString();
     }
 
+    // Makes a random move for the computer, by selecting a random number from the avaliable moves
     private void randMove(){
         if (availableMoves.isEmpty()){
             return;
@@ -105,6 +111,8 @@ public class TicTacToe {
         availableMoves.remove(Integer.valueOf(number));
     }
 
+    // Makes a move for the player determined by the index he selected, if the index is not contained in the board
+    // then returns a warn error.
     public String playerMove(String numb){
         try{
             int number = Integer.parseInt(numb);

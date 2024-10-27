@@ -18,6 +18,11 @@ public class Hangman {
         "beach", "mountain", "forest", "river", "lake", "desert", "island", "valley", "hill", "canyon"
     };
 
+    /**
+        Constructor of the game, initializes the secret word and the guessed word
+        The secret word is randomly selected from the words array
+        The guessed word is initialized with underscores, defining the length of the secret word for the player
+    */
     public Hangman(){
         SecretWord = words[(int)(Math.random() * words.length)];
         GuessedWord = new StringBuilder();
@@ -26,11 +31,13 @@ public class Hangman {
         }
     }
     
-    
+    // Returns the welcome message of the game, with the lengyth of the secret word
     public String welcomeMessage(){
         return "Welcome to Hangman! > GUESS THE WORD: " + GuessedWord.toString();
     }
 
+    // Guess only one character, if the char in contained in the secret word, it will be added to the guessed word
+    // And will be returned with the updated guessed word and the attempts left
     public String guessChar(char letter){
         letter = Character.toLowerCase(letter);
         if (SecretWord.indexOf(letter) == -1){
@@ -47,6 +54,8 @@ public class Hangman {
         return GuessedWord.toString() + " (" + attempsLeft + ")";
     }
 
+    // To Guess the entire word, this is necesary to win, if the word is correct, the game will end
+    // if not, then the attempts will be increased
     public boolean guessWord(String word){
         word = word.toLowerCase();
         if (word.equals(SecretWord)){
@@ -56,6 +65,7 @@ public class Hangman {
         return false;
     }
 
+    // Checks if the game is over, by checking if the attempts are greater than 6
     public boolean endGame(){
         return attempts >= 6;
     }

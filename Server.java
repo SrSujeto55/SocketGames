@@ -16,6 +16,8 @@ public class Server {
             System.out.println("Usage: java Server [PORT]");
             System.exit(1);
         }
+        // Infinite loop to accept clients in new threads
+        //* MULTIPLE CLIENTS!
         try{
             int port = Integer.parseInt(args[0]);
             try(ServerSocket server = new ServerSocket(port)){
@@ -35,21 +37,24 @@ public class Server {
     }   
 }
 
-
+// Threaded class to handle the client connection
+// This is the real Server
 class ServerHandler extends Thread{
     private Socket client;
     private BufferedReader in;
     private PrintWriter out;
-    private boolean echoMode, tictackMode, RockPaperMode, fourInRowMode, hangmanMode;
+    private boolean echoMode, tictackMode, RockPaperMode, fourInRowMode, hangmanMode; // All playable modes
     private Hangman hangman;
     private TicTacToe tictack;
     private RockPaperScissors RockPaper;
     private FourInRow fourInRow;
 
+    // Contructor to initialize the client socket passed by the infinite loop
     public ServerHandler(Socket client){
         this.client = client;
     }
 
+    // Close the client connection, closes every stream and the socket
     private void close(){
         try{
             in.close();
@@ -60,6 +65,9 @@ class ServerHandler extends Thread{
         }
     }
 
+    // Protocol to send messages to the client defined by:
+    // 1. The server sends a message to the client, this message is composed by two parts separated by ';;'
+    // 2. The first part is the name of the game runningn in the server, and the second part is the message to be displayed
     private void msgProtocol(String hostname, String msg){
         String[] parts = msg.split("\n");
         if(parts.length > 1){
@@ -71,6 +79,10 @@ class ServerHandler extends Thread{
         out.println(hostname + ";;" + msg);
     }
 
+    // Search for the mode to activate
+    // The client can activate this modes by sending a message with the name of the mode
+    // initializes the respective class depending on the mode.
+    // and sends the welcome message to the client
     private void searchMode(String msg){
         switch (msg) {
             case "ECHO_MODE":
@@ -111,6 +123,9 @@ class ServerHandler extends Thread{
         }
     }
 
+    // Thread method to run the logic of the server
+    // depending on the mode activated, the server will behave differently, in an infinite loop
+    // Also, the firts time ever, displays the avaliable commands and modes to play.
     public void run(){
         try{
             in = new BufferedReader(new InputStreamReader(client.getInputStream()));
@@ -182,6 +197,8 @@ class ServerHandler extends Thread{
                         continue;
                     }
                 }
+                
+                //* FOUR IN ROW
                 else if (fourInRowMode){
                     if (message.equals("exit")){
                         fourInRowMode = false;

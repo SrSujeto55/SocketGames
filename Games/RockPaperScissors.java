@@ -2,10 +2,14 @@ package Games;
 import java.util.Random;
 
 public class RockPaperScissors {
+
+    // Returns the welcome message of the game, with the rules to play
     public String welcomeMessage(){
         return "Welcome to Rock Paper Scissors game!\nType 'rock', 'paper' or 'scissors' to play, exit to quit";
     }
 
+    // Make a move, inmediatly after the player make a move, the computer selects a random move bettwen the three possible 
+    // options and determine the game results
     public String play(String playerMove){
         if (!playerMove.equals("rock") && !playerMove.equals("paper") && !playerMove.equals("scissors")){
             return "Invalid move";

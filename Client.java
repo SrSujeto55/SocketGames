@@ -10,12 +10,15 @@ public class Client {
     public BufferedReader in;
     public PrintWriter out;
 
+    // Contructor og the client, connects to the desired port in localhost (Changa as needed) and starts the input and output streams acording to the socket
     public Client(int port) throws IOException {
         socket = new Socket("localhost", port);
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         out = new PrintWriter(socket.getOutputStream(), true);
     }
 
+    // Debugg mode to Echo from the Alpha version
+    //! Deprecated
     public void echoMessages(){
         try{
             out.println("ECHO_MODE");
@@ -26,6 +29,8 @@ public class Client {
         }
     }
 
+    // Debugg mode to Hangman from the Alpha version
+    //! Deprecated
     public void hangmanMessages(){
         try{
             out.println("HANGMAN_MODE");
@@ -36,6 +41,12 @@ public class Client {
         }
     }
 
+    // Main method to comunicate with the server, only establishes a communication chanel between the client and the server
+    // The server need to follow the protocol to communicate with the client
+    // this protocol is defined as follows:
+    // 1. The server sends a message to the client, this message is composed by two parts separated by ';;'
+    // 2. The first part is the name of the game runningn in the server, and the second part is the message to be displayed
+    // The client starts a new thread to read the messages from the server to prevent blocking the main thread leading to malfunction
     public void communicate(){
         new Thread(() -> {
             String response;
@@ -64,6 +75,8 @@ public class Client {
         }
     }
 
+    // Debugg mode to Party from the Alpha version
+    //! Deprecated
     public void partyMode(){
         try{
             out.println("PARTY_MODE");
